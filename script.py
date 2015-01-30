@@ -122,7 +122,7 @@ def createFile(to, strFile):
 # @param fileName, nombre del archivo de configuración del sitio
 def upSite(fileName):
 	os.system('a2ensite '+ fileName +' > /dev/null')
-	print( 'Site '+ fileName +' enable' )
+	print( 'Site '+ fileName +' enabling' )
 
 
 # Función para reiniciar el Apache al crear todos los archivos de configuración de los sitios
