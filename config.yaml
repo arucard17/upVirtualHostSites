@@ -1,4 +1,15 @@
+# Archivo de configuración para cada sitio en el Virtual Host
+# 
+# La estructura es la siguiente:
+# - 
+#   map: nombre del dominio o subdominio
+#   to: nombre de la carpeta contenedora, Si el proyecto posee una carpeta publica, debe definirse ahí mismo
+# 
+# e.j.
+# -
+#   map: example.co
+#   to: example/public
 sites:
   -
-    map: agsys.linkersoft.co
-    to: agsys/public
+    map: example.co
+    to: example

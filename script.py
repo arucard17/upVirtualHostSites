@@ -2,9 +2,9 @@
 
 import sys, os, yaml
 
-configFile = "config.yaml" 
-rutes = None
-pathSites = "/etc/apache2/sites-available/"
+configFile = "config.yaml" # archivo de configuración de los diferentes sitios que se alojaran
+rutes = None # contenedor de las rutas obtenidas del archivo yaml
+pathSites = "/etc/apache2/sites-available/" # carpeta de los sitios disponibles del Apache
 
 # Handle Errors
 try:
@@ -24,20 +24,35 @@ if rutes is None:
 	exit()
 
 # Functions
-def showRutes():
-	for rute in rutes:
-	    for k,v in rute.items():
-	        print k, "->", v
-	    print "\n",
 
+# Función que revisa si el dominio necesita un alias
+# De ser correcto, se le agregará al archivo la configuración de ServerAlias 
+# 
+# e.j. linkersoft.co
+# el alias sería linkersoft.co
+# y el nombre sería www.linkersoft.co
+# 
+# @param str, nombre del dominio
+# @return boolean
 def checkIfNeedAlias(str):
 	return str.count(".") == 1
 
+
+# Función que elimina la subcadena "/public"
+# 
+# @param str, cadena del path con el directorio donde irá la página web
+# @return str, cadena sin la subcadena "/public"  
 def removePublic(str):
 	if str.find("/public") != -1:
 		str = str.replace("/public", "")
 	return str
 
+# Función que genera el texto que irá en el archivo de configuración 
+# para el dominio o subdominio
+# 
+# @param map, nombre del dominio
+# @param to, nombre de la carpeta donde irá alojado el dominio
+# @return sconfig, texto generado
 def createConfig(map, to):
 	map2 = ""
 
@@ -83,6 +98,13 @@ def createConfig(map, to):
 
 	return sconfig
 
+
+# Función que crear si no existe o edita si existe el archivo de configuración
+# del dominio
+# 
+# @param to, nombre de la carpeta contenedora
+# @param strFile, texto de configuración generado en la función "createConfig"
+# @return fileName, nombre del archivo generado
 def createFile(to, strFile):
 	fileName = removePublic(to) + ".conf"
 	path = pathSites + fileName
@@ -93,12 +115,24 @@ def createFile(to, strFile):
 
 	return fileName
 
+
+# Función para habilitar el sitio
+# 
+# @param fileName, nombre del archivo de configuración del sitio
 def upSite(fileName):
 	os.system('a2ensite '+ fileName)
 
+
+# Función para reiniciar el Apache al crear todos los archivos de configuración de los sitios
 def reloadApache():
 	os.system('service apache2 reload')
 
+
+# Función que recorre los datos obtenidos del archivo de configuración 
+# y genera toda la configuración para cada sitio 
+# 
+# @param objFile, objeto obtenido de la llamada del archivo "config.yaml"
+# @return void
 def setSites(objFile):
 	rutes = None
 
@@ -113,7 +147,6 @@ def setSites(objFile):
 
 	reloadApache()
 
-# showRutes()
 
 ##############
 # Init Script
