@@ -97,13 +97,18 @@ def upSite(fileName):
 	os.system('a2ensite '+ fileName)
 	os.system('service apache2 reload')
 
-def setSites(rutes):
-	for r in rutes:
-	    for k,rute in r.items():
-	    	print k, "->", rute
-	    	strFile = createConfig(rute[0]["map"], rute[0]["to"])
-	    	fileName = createFile(rute[0]["to"], strFile)
-	    	upSite(fileName)
+def setSites(objFile):
+	rutes = None
+
+	for r in objFile:
+		for k,_r in r.items():
+			rutes = _r 
+
+	for rute in rutes:
+		strFile = createConfig(rute["map"], rute["to"])
+		fileName = createFile(rute["to"], strFile)
+		upSite(fileName)
+
 
 # showRutes()
 
