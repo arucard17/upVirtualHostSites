@@ -95,6 +95,8 @@ def createFile(to, strFile):
 
 def upSite(fileName):
 	os.system('a2ensite '+ fileName)
+
+def reloadApache():
 	os.system('service apache2 reload')
 
 def setSites(objFile):
@@ -109,6 +111,7 @@ def setSites(objFile):
 		fileName = createFile(rute["to"], strFile)
 		upSite(fileName)
 
+	reloadApache()
 
 # showRutes()
 
