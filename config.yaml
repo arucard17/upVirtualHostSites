@@ -1,0 +1,4 @@
+sites:
+  -
+    map: agsys.linkersoft.co
+    to: agsys/public
