@@ -1,16 +1,44 @@
 #!/usr/bin/python
 # -⁻- coding: UTF-8 -*-
 
-import sys, os, yaml
+import sys, os, yaml, getopt
 
 configFile = "config.yaml" # archivo de configuración de los diferentes sitios que se alojaran
 rutes = None # contenedor de las rutas obtenidas del archivo yaml
 pathSites = "/etc/apache2/sites-available/" # carpeta de los sitios disponibles del Apache
+option = "up" # Variable para saber si subir los sitios o tumbarlos
+site = ""
+
+# Setup Params
+def getOptions(argv):
+
+	global configFile
+	global option
+	global site
+	global pathSites
+
+	try:
+		opts, args = getopt.getopt(argv,"c:o:s:",["config=","path=","option=","site="])
+	except getopt.GetoptError:
+		print 'script.py -c <configFile> -o <up/down> -s <siteName> -p <pathSites>'
+		sys.exit(2)
+	for opt, arg in opts:
+		if opt in ("-c", "--config"):
+			configFile = arg
+		elif opt in ("-o", "--option"):
+			option = arg
+		elif opt in ("-s", "--site"):
+			site = arg
+		elif opt in ("-p", "--path"):
+			pathSites = arg
+
+getOptions(sys.argv[1:]);
+
 
 # Handle Errors
 try:
 	stream = open(configFile, "r")
-	rutes = yaml.load_all(stream)
+	rutes = yaml.load(stream)
 except yaml.YAMLError, exc:
 	if hasattr(exc, 'problem_mark'):
 		mark = exc.problem_mark
@@ -23,6 +51,7 @@ except IOError:
 # If error with file, exit 
 if rutes is None:
 	exit()
+		
 
 # Functions
 
@@ -117,12 +146,18 @@ def createFile(to, strFile):
 	return fileName
 
 
-# Función para habilitar el sitio
+# Función para habilitar o deshabilitar el sitio
 # 
 # @param fileName, nombre del archivo de configuración del sitio
-def upSite(fileName):
-	os.system('a2ensite '+ fileName +' > /dev/null')
-	print( 'Site '+ fileName +' enabling' )
+# @param option, up/down opción que si es "up" activará el sitio, si es "down" deactivará el sitio
+def setupSite(fileName, option):
+	if option == "up" or option != "down":
+		os.system('a2ensite '+ fileName +' > /dev/null')
+		print( 'Site '+ fileName +' enabling' )
+	else:
+		os.system('a2dissite '+ fileName +' > /dev/null')
+		print( 'Site '+ fileName +' disabling' )
+
 
 
 # Función para reiniciar el Apache al crear todos los archivos de configuración de los sitios
@@ -136,16 +171,13 @@ def reloadApache():
 # @param objFile, objeto obtenido de la llamada del archivo "config.yaml"
 # @return void
 def setSites(objFile):
-	rutes = None
-
-	for r in objFile:
-		for k,_r in r.items():
-			rutes = _r 
+	rutes = objFile['sites'];
 
 	for rute in rutes:
-		strFile = createConfig(rute["map"], rute["to"])
-		fileName = createFile(rute["to"], strFile)
-		upSite(fileName)
+		if site == "" or removePublic(rute["to"]) == site:
+			strFile = createConfig(rute["map"], rute["to"])
+			fileName = createFile(rute["to"], strFile)
+			setupSite(fileName, option)
 
 	reloadApache()
 
