@@ -32,25 +32,25 @@ def getOptions(argv):
 		elif opt in ("-p", "--path"):
 			pathSites = arg
 
-getOptions(sys.argv[1:]);
-
-
 # Handle Errors
-try:
-	stream = open(configFile, "r")
-	rutes = yaml.load(stream)
-except yaml.YAMLError, exc:
-	if hasattr(exc, 'problem_mark'):
-		mark = exc.problem_mark
-		print "Error position: (%s:%s)" % (mark.line+1, mark.column+1)
-	else:
-		print "Error with %s" % (configFile)
-except IOError:
-	print "Not found file %s" % (configFile)
+def loadConfigFile():
+	global rutes
 
-# If error with file, exit 
-if rutes is None:
-	exit()
+	try:
+		stream = open(configFile, "r")
+		rutes = yaml.load(stream)
+	except yaml.YAMLError, exc:
+		if hasattr(exc, 'problem_mark'):
+			mark = exc.problem_mark
+			print "Error position: (%s:%s)" % (mark.line+1, mark.column+1)
+		else:
+			print "Error with %s" % (configFile)
+	except IOError:
+		print "Not found file %s" % (configFile)
+
+	# If error with file, exit 
+	if rutes is None:
+		exit()
 		
 
 # Functions
@@ -185,4 +185,7 @@ def setSites(objFile):
 ##############
 # Init Script
 ##############
+
+getOptions(sys.argv[1:])
+loadConfigFile()
 setSites(rutes)
